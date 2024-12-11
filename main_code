@@ -376,3 +376,9 @@ bool PlusDeGrenade()
 
 
 JeuGame();
+
+git config --global user.name "matgarnier"
+git config --global user.mail matgarnier@ensc.fr
+git add -A
+git commit -m
+git push origin version
