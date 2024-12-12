@@ -253,10 +253,10 @@ void LancerGrenade()
 
     switch (directionAdj)
     {
-        case 0: adjX = cibleX - 1; break; // Haut
-        case 1: adjX = cibleX + 1; break; // Bas
-        case 2: adjY = cibleY - 1; break; // Gauche
-        case 3: adjY = cibleY + 1; break; // Droite
+        case 0: adjX = cibleX - 1; break; 
+        case 1: adjX = cibleX + 1; break; 
+        case 2: adjY = cibleY - 1; break; 
+        case 3: adjY = cibleY + 1; break; 
     }
 
     
