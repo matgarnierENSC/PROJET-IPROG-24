@@ -26,22 +26,29 @@ InitialiserPlateau();
 AfficherPlateau();
 Thread.Sleep(2000);
 
-
-    
-while (MortPersonnage() == false || PlusDeGrenade() == false )
-
-{
-
-
-
-    Console.WriteLine(TrouverPosition('O'));
-    Console.WriteLine("\nC'est au tour d'Owen !");
-    Thread.Sleep(1000);
-    DeplacerOwen();
+Console.WriteLine(TrouverPosition('O'));
+Console.WriteLine("\nC'est au tour d'Owen !");
+Thread.Sleep(1000);
+DeplacerOwen();
 
     AfficherPlateau();
     Thread.Sleep(2000);
-    GrenadeInteraction();
+ // Lancer une grenade
+        if (grenadesRestantes > 0)
+        {
+            Console.WriteLine("Voulez-vous lancer une grenade ? (o/n)");
+            string reponse = Console.ReadLine();
+            if (reponse.ToLower() == "o")
+            {
+                LancerGrenade();
+                AfficherPlateau();
+            }
+        }
+        else
+        {
+            Console.WriteLine("Aucune grenade restante.");
+        }
+
     
     
 
@@ -67,12 +74,12 @@ while (MortPersonnage() == false || PlusDeGrenade() == false )
     Console.WriteLine(TrouverPosition('O'));
     Console.WriteLine(TrouverPosition('I'));
     
-    Console.Clear();
+    
 }
 
 Console.WriteLine("Merci d'avoir joué !");
 }
-}
+
 
 void InitialiserPlateau()
 {
@@ -177,30 +184,93 @@ void DeplacerOwen()
 
 void LancerGrenade()
 {
+    // Trouver la position actuelle d'Owen
     (int x, int y) = TrouverPosition('O');
-    Console.WriteLine("Choisissez la distance de la grenade (1, 2, ou 3 cases) :");
-    int distance = Convert.ToInt32(Console.ReadLine());
-    Console.WriteLine("Utilisez les flèches pour choisir la direction.");
-    ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
 
-    int cibleX = x, cibleY = y;
+    // Demander à Owen de choisir la distance de la grenade (1, 2, ou 3 cases)
+    Console.WriteLine("Choisissez la distance de la grenade :");
+    Console.WriteLine("Appuyer sur 1 pour lancer à  1 case d'Owen");
+    Console.WriteLine("Appuyer sur 2 pour lancer à  2 cases d'Owen");
+    Console.WriteLine("Appuyer sur 3 pour lancer à  3 cases d'Owen");
+
+    // Lire la distance
+    int distance = 0;  // Initialisation de la variable
+    bool validDistance = false;
+    while (!validDistance)
+    {
+        string input = Console.ReadLine();
+        validDistance = int.TryParse(input, out distance) && (distance == 1 || distance == 2 || distance == 3);
+        if (!validDistance)
+        {
+            Console.WriteLine("Distance invalide. Choisissez 1, 2 ou 3.");
+        }
+    }
+
+    // Indiquer à l'utilisateur comment choisir la direction de la grenade
+    Console.WriteLine("Utilisez les flèches directionnelles pour choisir la direction de la grenade :");
+    Console.WriteLine("Flèche haut = haut, Flèche bas = bas, Flèche gauche = gauche, Flèche droite = droite");
+    AfficherPlateau();
+    // Lire une touche directionnelle
+    ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true); // Empêche l'affichage de la touche pressée
+
+    // Calculer la position de la cible selon la direction choisie
+    int cibleX = x;
+    int cibleY = y;
+
     switch (keyInfo.Key)
     {
-        case ConsoleKey.UpArrow: cibleX = x - distance; break;
-        case ConsoleKey.DownArrow: cibleX = x + distance; break;
-        case ConsoleKey.LeftArrow: cibleY = y - distance; break;
-        case ConsoleKey.RightArrow: cibleY = y + distance; break;
-        default: Console.WriteLine("Direction invalide."); return;
+        case ConsoleKey.UpArrow: // Flèche haut
+            cibleX = x - distance;
+            break;
+        case ConsoleKey.DownArrow: // Flèche bas
+            cibleX = x + distance;
+            break;
+        case ConsoleKey.LeftArrow: // Flèche gauche
+            cibleY = y - distance;
+            break;
+        case ConsoleKey.RightArrow: // Flèche droite
+            cibleY = y + distance;
+            break;
+        default:
+            Console.WriteLine("Direction invalide.");
+            return; // Ne fait rien si la direction est invalide
     }
 
-    if (cibleX >= 0 && cibleX < longueurPlateau && cibleY >= 0 && cibleY < largeurPlateau)
+    // Vérifier que la cible est dans les limites du plateau et à une distance valide
+    if (cibleX < 0 || cibleX >= longueurPlateau || cibleY < 0 || cibleY >= largeurPlateau)
     {
-        plateau[cibleX, cibleY] = 'X';
-        
+        Console.WriteLine("La grenade ne peut pas être lancée hors des limites du plateau.");
+        return;
     }
-    
-}
 
+    // Placer la grenade (créer des fossés 'X') à la position cible
+    plateau[cibleX, cibleY] = 'X';
+
+    // Choisir une case adjacente aléatoire pour placer un autre fossé
+    Random rand = new Random();
+    int directionAdj = rand.Next(4); // Choisir une direction aléatoire pour la case adjacente
+    int adjX = cibleX;
+    int adjY = cibleY;
+
+    switch (directionAdj)
+    {
+        case 0: adjX = cibleX - 1; break; // Haut
+        case 1: adjX = cibleX + 1; break; // Bas
+        case 2: adjY = cibleY - 1; break; // Gauche
+        case 3: adjY = cibleY + 1; break; // Droite
+    }
+
+    // Vérifier si la case adjacente est dans les limites et libre, puis placer le fossé
+    if (adjX >= 0 && adjX < longueurPlateau && adjY >= 0 && adjY < largeurPlateau && plateau[adjX, adjY] == '.')
+    {
+        plateau[adjX, adjY] = 'X';
+    }
+
+    // Réduire le nombre de grenades restantes
+    grenadesRestantes--;
+
+    Console.WriteLine($"Grenade lancée sur ({cibleX}, {cibleY}) ! Distance: {distance} case(s)");
+}
 void DeplacerMaisie()
 
     {
@@ -334,18 +404,7 @@ void DeplacerIndominus()
     Console.WriteLine($"L'indominus s'est déplacée vers ({nouveauX}, {nouveauY})");
     }
 
-bool MortPersonnage()
-{   
-    bool FindeJeu = false ;
-    while (!FindeJeu)
-    {
-    if (TrouverPosition('O') == (-1,-1) ||
-        TrouverPosition('M') == (-1,-1) ||
-        TrouverPosition('B') == (-1,-1) )
-    {FindeJeu = true;}
-    }
-    return false; 
-}
+
 
 void GrenadeInteraction()
     {
@@ -361,17 +420,7 @@ void GrenadeInteraction()
         }
     }
     }
-bool PlusDeGrenade()   
-    {   
-        
-        if (grenadesRestantes <= 0)
-        {
-        Console.WriteLine("Aucune grenade restante.");
-        Thread.Sleep(1000);
-        } 
-        return false;
 
-    }
 
 
 JeuGame();
