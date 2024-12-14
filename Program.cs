@@ -210,7 +210,7 @@ void LancerGrenade()
         return;
     }
 
-    if (VerifierCollisionGrenade(cibleX, cibleY))
+    if (VerifierGrenadeTouchePersonnage(cibleX, cibleY))
     {
         Environment.Exit(0);
     }
@@ -232,7 +232,7 @@ void LancerGrenade()
 
     if (adjX >= 0 && adjX < longueurPlateau && adjY >= 0 && adjY < largeurPlateau)
     {
-        if (VerifierCollisionGrenade(adjX, adjY))
+        if (VerifierGrenadeTouchePersonnage(adjX, adjY))
         {
             plateau[adjX, adjY] = 'X';
             Console.WriteLine($"L'éclat de la grenade a touché la case ({adjX}, {adjY}) !");
@@ -249,7 +249,7 @@ void LancerGrenade()
     grenadesRestantes--;
 }
 
-bool VerifierCollisionGrenade(int x, int y)
+bool VerifierGrenadeTouchePersonnage(int x, int y)
 {
     if (plateau[x, y] == 'O' || plateau[x, y] == 'M' || plateau[x, y] == 'B')
     {
