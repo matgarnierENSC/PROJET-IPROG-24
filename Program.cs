@@ -296,7 +296,7 @@ void InitialiserPlateau()
     }
 }
 
-//Design des différents éléments du plateau
+//Design des différents éléments du plateau et permet de mettre à jour l'affichage du plateau après chaque action
 void AfficherPlateau()
 {
     Console.WriteLine("\nPlateau de jeu :");
@@ -594,21 +594,39 @@ void DeplacerIndominus(out bool personnageMange)
     personnageMange = false;
     (int x, int y) = TrouverPosition('I');
     Random rand = new Random();
+    int nouveauX = 0;
+    int nouveauY = 0;
     bool validMove = false;
 
+    // Vérification si l'Indominus est bloquée
+    bool estBloquee = true;
+    int[,] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+
+    for (int i = 0; i < 4; i++)
+    {
+        nouveauX = x + directions[i, 0];
+        nouveauY = y + directions[i, 1];
+        if (nouveauX >= 0 && nouveauX < longueurPlateau &&
+            nouveauY >= 0 && nouveauY < largeurPlateau &&
+            (plateau[nouveauX, nouveauY] == '.' || plateau[nouveauX, nouveauY] == 'M' || plateau[nouveauX, nouveauY] == 'O'))
+        {
+            estBloquee = false;
+            break;
+        }
+    }
+
+    if (estBloquee)
+    {
+        Console.WriteLine("L'Indominus Rex est bloquée et ne peut pas bouger !");
+        return;
+    }
+
+    // Si l'Indominus n'est pas bloquée, elle bouge de manière aléatoire dans les directions possibles.
     while (!validMove)
     {
         int direction = rand.Next(4);
-        int nouveauX = x;
-        int nouveauY = y;
-
-        switch (direction)
-        {
-            case 0: nouveauX = x - 1; break;
-            case 1: nouveauX = x + 1; break;
-            case 2: nouveauY = y - 1; break;
-            case 3: nouveauY = y + 1; break;
-        }
+        nouveauX = x + directions[direction, 0];
+        nouveauY = y + directions[direction, 1];
 
         if (nouveauX >= 0 && nouveauX < longueurPlateau &&
             nouveauY >= 0 && nouveauY < largeurPlateau &&
@@ -616,6 +634,7 @@ void DeplacerIndominus(out bool personnageMange)
         {
             validMove = true;
 
+            // Si l'Indominus mange un personnage
             if (plateau[nouveauX, nouveauY] == 'M' || plateau[nouveauX, nouveauY] == 'O')
             {
                 personnageMange = true;
@@ -624,12 +643,17 @@ void DeplacerIndominus(out bool personnageMange)
                 Console.WriteLine($"L'Indominus a mangé {victime} à la position ({nouveauX}, {nouveauY}) !");
                 Console.ResetColor();
             }
-
-            plateau[nouveauX, nouveauY] = 'I';
-            plateau[x, y] = '.';
         }
     }
+
+    // Mise à jour du plateau
+    plateau[x, y] = '.';
+    plateau[nouveauX, nouveauY] = 'I';
+
+    Console.WriteLine($"L'Indominus était en ({x}, {y})");
+    Console.WriteLine($"L'Indominus s'est déplacée vers ({nouveauX}, {nouveauY})");
 }
+
 
 
 void RepousserIndominus(int blueX, int blueY, int indominusX, int indominusY)
