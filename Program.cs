@@ -260,9 +260,9 @@ void AfficherApercuDeplacement(string personnage)
 //Facilité lecture jeu 
 void AfficherAvecDelaiEtEffacement()
 {
-    Console.Clear();      // Efface l'écran
-    AfficherPlateau();    // Réaffiche l'état du plateau
-    Thread.Sleep(2000);    // Pause de 500 ms pour rendre l'animation visible
+    Console.Clear();      
+    AfficherPlateau();    
+    Thread.Sleep(2000);    
 }
 
 
